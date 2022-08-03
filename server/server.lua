@@ -102,6 +102,24 @@ AddEventHandler("playerConnecting", function(name, setKickReason, deferrals)
     deferrals.done()
 end)
 
+-- For use when CMS API is ready
+--[[
+if api_error and Config.offline_cache then
+    if cache[identifier] ~= nil then
+        for k, v in pairs(ppermissiondata) do
+            if string.sub(v, 1, string.len("")) == "add_principal" then
+                ExecuteCommand(v)
+                if loaded_list[identifier] == nil then
+                    loaded_list[identifier] = {
+                        [v] = Config.rank_mapping[v]
+                    }
+                end
+            end
+        end
+    end
+end
+]]
+
 RegisterCommand("refreshpermissions", function(src, args, raw)
     local permissiondata = json.decode(LoadResourceFile(GetCurrentResourceName(), "tempdata.json"))
     local identifier
