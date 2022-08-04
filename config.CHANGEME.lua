@@ -12,3 +12,5 @@ Config.rank_mapping = {
 
 Config.offline_cache = true -- If set to true role permissions will be cached on the server in-case CMS goes down, the
 -- cache will be updated everytime the player rejoins, the rank refresh command is run, or has a rank change in CMS
+
+Config.APIKey = "" -- The API key for your SonoranCMS community

@@ -21,8 +21,9 @@ RegisterNetEvent("sonoran_permissions::rankupdate", function(data)
                     }
                     SaveResourceFile(GetCurrentResourceName(), "cache.json", json.encode(cache))
                 else
-                    cache[identifier][v] = "add_principal identifier." .. Config.primary_identifier .. ":" ..
-                                               identifier .. " " .. Config.rank_mapping[v]
+                    cache[identifier][v] =
+                        "add_principal identifier." .. Config.primary_identifier .. ":" .. identifier .. " " ..
+                            Config.rank_mapping[v]
                     SaveResourceFile(GetCurrentResourceName(), "cache.json", json.encode(cache))
                 end
             end
@@ -32,8 +33,8 @@ RegisterNetEvent("sonoran_permissions::rankupdate", function(data)
         for k, v in pairs(loaded_list[identifier]) do
             if ppermissiondata[k] == nil then
                 loaded_list[k] = nil
-                ExecuteCommand("remove_principal identifier." .. Config.primary_identifier .. ":" .. identifier ..
-                                   " " .. v)
+                ExecuteCommand(
+                    "remove_principal identifier." .. Config.primary_identifier .. ":" .. identifier .. " " .. v)
                 if Config.offline_cache then
                     cache[identifier][k] = nil
                     SaveResourceFile(GetCurrentResourceName(), "cache.json", json.encode(cache))
@@ -79,8 +80,9 @@ AddEventHandler("playerConnecting", function(name, setKickReason, deferrals)
                     }
                     SaveResourceFile(GetCurrentResourceName(), "cache.json", json.encode(cache))
                 else
-                    cache[identifier][v] = "add_principal identifier." .. Config.primary_identifier .. ":" ..
-                                               identifier .. " " .. Config.rank_mapping[v]
+                    cache[identifier][v] =
+                        "add_principal identifier." .. Config.primary_identifier .. ":" .. identifier .. " " ..
+                            Config.rank_mapping[v]
                     SaveResourceFile(GetCurrentResourceName(), "cache.json", json.encode(cache))
                 end
             end
@@ -90,8 +92,8 @@ AddEventHandler("playerConnecting", function(name, setKickReason, deferrals)
         for k, v in pairs(loaded_list[identifier]) do
             if ppermissiondata[k] == nil then
                 loaded_list[k] = nil
-                ExecuteCommand("remove_principal identifier." .. Config.primary_identifier .. ":" .. identifier ..
-                                   " " .. v)
+                ExecuteCommand(
+                    "remove_principal identifier." .. Config.primary_identifier .. ":" .. identifier .. " " .. v)
                 if Config.offline_cache then
                     cache[identifier][k] = nil
                     SaveResourceFile(GetCurrentResourceName(), "cache.json", json.encode(cache))
@@ -120,6 +122,33 @@ if api_error and Config.offline_cache then
 end
 ]]
 
+SetHttpHandler(function(req, res)
+    local path = req.path
+    local method = req.method
+    local base = ""
+    local file = ""
+    if method == "POST" and path == "/event" then
+        req.setDataHandler(function(data)
+            if not data then
+                res.send(json.encode({
+                    ["error"] = "bad request"
+                }))
+                return
+            end
+            local body = json.decode(data)
+            if not body then
+                res.send(json.encode({
+                    ["error"] = "bad request"
+                }))
+                return
+            end
+            if body.key and body.key:upper() == Config.APIKey:upper() then
+                TriggerEvent("sonoran_permissions::rankupdate", body)
+            end
+        end)
+    end
+end)
+
 RegisterCommand("refreshpermissions", function(src, args, raw)
     local permissiondata = json.decode(LoadResourceFile(GetCurrentResourceName(), "tempdata.json"))
     local identifier
@@ -146,8 +175,9 @@ RegisterCommand("refreshpermissions", function(src, args, raw)
                     }
                     SaveResourceFile(GetCurrentResourceName(), "cache.json", json.encode(cache))
                 else
-                    cache[identifier][v] = "add_principal identifier." .. Config.primary_identifier .. ":" ..
-                                               identifier .. " " .. Config.rank_mapping[v]
+                    cache[identifier][v] =
+                        "add_principal identifier." .. Config.primary_identifier .. ":" .. identifier .. " " ..
+                            Config.rank_mapping[v]
                     SaveResourceFile(GetCurrentResourceName(), "cache.json", json.encode(cache))
                 end
             end
@@ -157,8 +187,8 @@ RegisterCommand("refreshpermissions", function(src, args, raw)
         for k, v in pairs(loaded_list[identifier]) do
             if ppermissiondata[k] == nil then
                 loaded_list[k] = nil
-                ExecuteCommand("remove_principal identifier." .. Config.primary_identifier .. ":" .. identifier ..
-                                   " " .. v)
+                ExecuteCommand(
+                    "remove_principal identifier." .. Config.primary_identifier .. ":" .. identifier .. " " .. v)
                 if Config.offline_cache then
                     cache[identifier][k] = nil
                     SaveResourceFile(GetCurrentResourceName(), "cache.json", json.encode(cache))
