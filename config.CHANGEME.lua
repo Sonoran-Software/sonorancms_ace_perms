@@ -4,7 +4,7 @@ Config = {}
 Config.configuration_version = 1.0
 Config.debug_mode = false -- Only useful for developers and if support asks you to enable it
 
-Config.primary_identifier = "fivem" -- The primary identifier to use, options are: license, fivem, steam, discord
+Config.primary_identifier = "license" -- The primary identifier to use, options are: license, fivem, steam, discord
 
 Config.rank_mapping = {
     ["9"] = "group.ace"
