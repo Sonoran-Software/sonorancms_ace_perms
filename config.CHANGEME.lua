@@ -7,10 +7,8 @@ Config.debug_mode = false -- Only useful for developers and if support asks you 
 Config.primary_identifier = "license" -- The primary identifier to use, options are: license, fivem, steam, discord
 
 Config.rank_mapping = {
-    ["9"] = "group.ace"
+    ["9dd1fea1-2360-4be2-923b-71b0c87944d0"] = "group.admin"
 }
 
 Config.offline_cache = true -- If set to true role permissions will be cached on the server in-case CMS goes down, the
 -- cache will be updated everytime the player rejoins, the rank refresh command is run, or has a rank change in CMS
-
-Config.APIKey = "" -- The API key for your SonoranCMS community

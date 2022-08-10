@@ -6,66 +6,89 @@ local COMMID = ""
 RegisterNetEvent("sonoran_permissions::rankupdate", function(data)
     local ppermissiondata = data.data.primaryRank
     local ppermissiondatas = data.data.secondaryRanks
-    local identifier = data.identifier
+    local identifier = data.data.activeApiIds
     if data.key == APIKey then
-        if Config.rank_mapping[ppermissiondata] ~= nil then
-            ExecuteCommand("add_principal identifier." .. Config.primary_identifier .. ":" .. identifier .. " " ..
-                               Config.rank_mapping[ppermissiondata])
-            if loaded_list[identifier] == nil then
-                loaded_list[identifier] = {
-                    [ppermissiondata] = Config.rank_mapping[ppermissiondata]
-                }
-            end
-            if Config.offline_cache then
-                if cache[identifier] == nil then
-                    cache[identifier] = {
-                        [ppermissiondata] = "add_principal identifier." .. Config.primary_identifier .. ":" ..
-                            identifier .. " " .. Config.rank_mapping[ppermissiondata]
-                    }
-                    SaveResourceFile(GetCurrentResourceName(), "cache.json", json.encode(cache))
-                else
-                    cache[identifier][ppermissiondata] =
-                        "add_principal identifier." .. Config.primary_identifier .. ":" .. identifier .. " " ..
-                            Config.rank_mapping[ppermissiondata]
-                    SaveResourceFile(GetCurrentResourceName(), "cache.json", json.encode(cache))
-                end
-            end
-        end
-        for _, v in pairs(ppermissiondatas) do
-            if Config.rank_mapping[v] ~= nil then
-                ExecuteCommand(
-                    "add_principal identifier." .. Config.primary_identifier .. ":" .. identifier .. " " ..
-                        Config.rank_mapping[v])
-                if loaded_list[identifier] == nil then
-                    loaded_list[identifier] = {
-                        [v] = Config.rank_mapping[v]
-                    }
-                end
-                if Config.offline_cache then
-                    if cache[identifier] == nil then
-                        cache[identifier] = {
-                            [v] = "add_principal identifier." .. Config.primary_identifier .. ":" .. identifier ..
-                                " " .. Config.rank_mapping[v]
-                        }
-                        SaveResourceFile(GetCurrentResourceName(), "cache.json", json.encode(cache))
-                    else
-                        cache[identifier][v] = "add_principal identifier." .. Config.primary_identifier .. ":" ..
-                                                   identifier .. " " .. Config.rank_mapping[v]
-                        SaveResourceFile(GetCurrentResourceName(), "cache.json", json.encode(cache))
+        for _, g in pairs(identifier) do
+            if loaded_list[g] ~= nil then
+                for k, v in pairs(loaded_list[g]) do
+                    local has = false
+                    for _, b in pairs(ppermissiondatas) do
+                        if b == k then
+                            has = true
+                        end
+                    end
+                    if ppermissiondata == v then
+                        has = true
+                    end
+                    if not has then
+                        loaded_list[g][k] = nil
+
+                        ExecuteCommand("remove_principal identifier." .. Config.primary_identifier .. ":" .. g ..
+                                           " " .. v)
+                        if Config.offline_cache then
+                            cache[g][k] = nil
+                            SaveResourceFile(GetCurrentResourceName(), "cache.json", json.encode(cache))
+                        end
                     end
                 end
             end
         end
-        if loaded_list[identifier] ~= nil then
-            for k, v in pairs(loaded_list[identifier]) do
-                if ppermissiondata[k] == nil then
-                    loaded_list[k] = nil
-                    ExecuteCommand(
-                        "remove_principal identifier." .. Config.primary_identifier .. ":" .. identifier .. " " ..
-                            v)
+        if ppermissiondata ~= "" or ppermissiondata ~= nil then
+            if Config.rank_mapping[ppermissiondata] ~= nil then
+                for _, b in pairs(identifier) do
+                    ExecuteCommand("add_principal identifier." .. Config.primary_identifier .. ":" .. b .. " " ..
+                                       Config.rank_mapping[ppermissiondata])
+                    if loaded_list[b] == nil then
+                        loaded_list[b] = {
+                            [ppermissiondata] = Config.rank_mapping[ppermissiondata]
+                        }
+                    else
+                        loaded_list[b][ppermissiondata] = Config.rank_mapping[ppermissiondata]
+                    end
                     if Config.offline_cache then
-                        cache[identifier][k] = nil
-                        SaveResourceFile(GetCurrentResourceName(), "cache.json", json.encode(cache))
+                        if cache[b] == nil then
+                            cache[b] = {
+                                [ppermissiondata] = "add_principal identifier." .. Config.primary_identifier .. ":" ..
+                                    b .. " " .. Config.rank_mapping[ppermissiondata]
+                            }
+                            SaveResourceFile(GetCurrentResourceName(), "cache.json", json.encode(cache))
+                        else
+                            cache[b][ppermissiondata] = "add_principal identifier." .. Config.primary_identifier ..
+                                                            ":" .. b .. " " .. Config.rank_mapping[ppermissiondata]
+                            SaveResourceFile(GetCurrentResourceName(), "cache.json", json.encode(cache))
+                        end
+                    end
+                end
+            end
+        end
+        if ppermissiondatas ~= nil then
+            for _, v in pairs(ppermissiondatas) do
+                if Config.rank_mapping[v] ~= nil then
+                    for _, b in pairs(identifier) do
+                        ExecuteCommand(
+                            "add_principal identifier." .. Config.primary_identifier .. ":" .. b .. " " ..
+                                Config.rank_mapping[v])
+                        if loaded_list[b] == nil then
+                            loaded_list[b] = {
+                                [v] = Config.rank_mapping[v]
+                            }
+                        else
+                            loaded_list[b][v] = Config.rank_mapping[v]
+                        end
+                        if Config.offline_cache then
+                            if cache[b] == nil then
+                                cache[b] = {
+                                    [v] = "add_principal identifier." .. Config.primary_identifier .. ":" .. b ..
+                                        " " .. Config.rank_mapping[v]
+                                }
+                                SaveResourceFile(GetCurrentResourceName(), "cache.json", json.encode(cache))
+                            else
+                                cache[b][v] =
+                                    "add_principal identifier." .. Config.primary_identifier .. ":" .. b .. " " ..
+                                        Config.rank_mapping[v]
+                                SaveResourceFile(GetCurrentResourceName(), "cache.json", json.encode(cache))
+                            end
+                        end
                     end
                 end
             end
@@ -80,8 +103,8 @@ AddEventHandler('onResourceStart', function(resource)
         if GetResourceState("sonorancms") ~= "started" then
             print("ERROR! SONORANCMS CORE NOT RUNNING!")
         else
-            APIKey = GetConvar("sonorancms_api_key")
-            COMMID = GetConvar("sonorancms_comm_id")
+            APIKey = GetConvar("SONORAN_CMS_API_KEY")
+            COMMID = GetConvar("SONORAN_CMS_COMMUNITY_ID")
             TriggerEvent("sonorancms::RegisterPushEvent", "ACCOUNT_UPDATED", "sonoran_permissions::rankupdate")
         end
     end
@@ -98,8 +121,27 @@ AddEventHandler("playerConnecting", function(_, _, deferrals)
     end
     PerformHttpRequest("https://cmsapi.dev.sonoransoftware.com/general/get_account_ranks",
         function(code, result, _)
-            if code == 200 then
+            if code == 201 then
                 local ppermissiondata = json.decode(result)
+                if loaded_list[identifier] ~= nil then
+                    for k, v in pairs(loaded_list[identifier]) do
+                        local has = false
+                        for l, b in pairs(ppermissiondata) do
+                            if b == k then
+                                has = true
+                            end
+                        end
+                        if not has then
+                            loaded_list[identifier][k] = nil
+                            ExecuteCommand("remove_principal identifier." .. Config.primary_identifier .. ":" ..
+                                               identifier .. " " .. v)
+                            if Config.offline_cache then
+                                cache[identifier][k] = nil
+                                SaveResourceFile(GetCurrentResourceName(), "cache.json", json.encode(cache))
+                            end
+                        end
+                    end
+                end
                 for _, v in pairs(ppermissiondata) do
                     if Config.rank_mapping[v] ~= nil then
                         ExecuteCommand(
@@ -109,6 +151,8 @@ AddEventHandler("playerConnecting", function(_, _, deferrals)
                             loaded_list[identifier] = {
                                 [v] = Config.rank_mapping[v]
                             }
+                        else
+                            loaded_list[identifier][v] = Config.rank_mapping[v]
                         end
                         if Config.offline_cache then
                             if cache[identifier] == nil then
@@ -121,19 +165,6 @@ AddEventHandler("playerConnecting", function(_, _, deferrals)
                                 cache[identifier][v] =
                                     "add_principal identifier." .. Config.primary_identifier .. ":" .. identifier ..
                                         " " .. Config.rank_mapping[v]
-                                SaveResourceFile(GetCurrentResourceName(), "cache.json", json.encode(cache))
-                            end
-                        end
-                    end
-                end
-                if loaded_list[identifier] ~= nil then
-                    for k, v in pairs(loaded_list[identifier]) do
-                        if ppermissiondata[k] == nil then
-                            loaded_list[k] = nil
-                            ExecuteCommand("remove_principal identifier." .. Config.primary_identifier .. ":" ..
-                                               identifier .. " " .. v)
-                            if Config.offline_cache then
-                                cache[identifier][k] = nil
                                 SaveResourceFile(GetCurrentResourceName(), "cache.json", json.encode(cache))
                             end
                         end
@@ -155,6 +186,7 @@ AddEventHandler("playerConnecting", function(_, _, deferrals)
                         end
                     end
                 end
+                deferrals.done()
             end
         end, "POST", json.encode({
             id = COMMID,
@@ -163,7 +195,9 @@ AddEventHandler("playerConnecting", function(_, _, deferrals)
             data = {{
                 apiId = identifier
             }}
-        }))
+        }), {
+            ["Content-Type"] = "application/json"
+        })
 end)
 
 RegisterCommand("refreshpermissions", function(src, _, _)
@@ -173,10 +207,36 @@ RegisterCommand("refreshpermissions", function(src, _, _)
             identifier = string.sub(v, string.len(Config.primary_identifier .. ":") + 1)
         end
     end
+    local payload = {}
+    payload["id"] = COMMID
+    payload["key"] = APIKey
+    payload["type"] = "GET_ACCOUNT_RANKS"
+    payload["data"] = {{
+        ["apiId"] = identifier
+    }}
     PerformHttpRequest("https://cmsapi.dev.sonoransoftware.com/general/get_account_ranks",
         function(code, result, _)
-            if code == 200 then
+            if code == 201 then
                 local ppermissiondata = json.decode(result)
+                if loaded_list[identifier] ~= nil then
+                    for k, v in pairs(loaded_list[identifier]) do
+                        local has = false
+                        for l, b in pairs(ppermissiondata) do
+                            if b == k then
+                                has = true
+                            end
+                        end
+                        if not has then
+                            loaded_list[identifier][k] = nil
+                            ExecuteCommand("remove_principal identifier." .. Config.primary_identifier .. ":" ..
+                                               identifier .. " " .. v)
+                            if Config.offline_cache then
+                                cache[identifier][k] = nil
+                                SaveResourceFile(GetCurrentResourceName(), "cache.json", json.encode(cache))
+                            end
+                        end
+                    end
+                end
                 for _, v in pairs(ppermissiondata) do
                     if Config.rank_mapping[v] ~= nil then
                         ExecuteCommand(
@@ -186,6 +246,8 @@ RegisterCommand("refreshpermissions", function(src, _, _)
                             loaded_list[identifier] = {
                                 [v] = Config.rank_mapping[v]
                             }
+                        else
+                            loaded_list[identifier][v] = Config.rank_mapping[v]
                         end
                         if Config.offline_cache then
                             if cache[identifier] == nil then
@@ -198,19 +260,6 @@ RegisterCommand("refreshpermissions", function(src, _, _)
                                 cache[identifier][v] =
                                     "add_principal identifier." .. Config.primary_identifier .. ":" .. identifier ..
                                         " " .. Config.rank_mapping[v]
-                                SaveResourceFile(GetCurrentResourceName(), "cache.json", json.encode(cache))
-                            end
-                        end
-                    end
-                end
-                if loaded_list[identifier] ~= nil then
-                    for k, v in pairs(loaded_list[identifier]) do
-                        if ppermissiondata[k] == nil then
-                            loaded_list[k] = nil
-                            ExecuteCommand("remove_principal identifier." .. Config.primary_identifier .. ":" ..
-                                               identifier .. " " .. v)
-                            if Config.offline_cache then
-                                cache[identifier][k] = nil
                                 SaveResourceFile(GetCurrentResourceName(), "cache.json", json.encode(cache))
                             end
                         end
@@ -232,12 +281,40 @@ RegisterCommand("refreshpermissions", function(src, _, _)
                     end
                 end
             end
-        end, "POST", json.encode({
-            id = COMMID,
-            key = APIKey,
-            type = "GET_ACCOUNT_RANKS",
-            data = {{
-                apiId = identifier
-            }}
-        }))
+        end, "POST", json.encode(payload), {
+            ["Content-Type"] = "application/json"
+        })
+end)
+
+RegisterCommand("permissiontest", function(src, args, _)
+    if IsPlayerAceAllowed(src, args[1]) then
+        TriggerClientEvent('chat:addMessage', src, {
+            color = {0, 255, 0},
+            multiline = true,
+            args = {"SonoranPermissions", "true"}
+        })
+    else
+        TriggerClientEvent('chat:addMessage', src, {
+            color = {255, 0, 0},
+            multiline = true,
+            args = {"SonoranPermissions", "false"}
+        })
+    end
+end, false)
+
+AddEventHandler('playerDropped', function()
+    local src = source
+    local identifier
+    for _, v in pairs(GetPlayerIdentifiers(src)) do
+        if string.sub(v, 1, string.len(Config.primary_identifier .. ":")) == Config.primary_identifier .. ":" then
+            identifier = string.sub(v, string.len(Config.primary_identifier .. ":") + 1)
+        end
+    end
+
+    if loaded_list[identifier] ~= nil then
+        for _, v in pairs(loaded_list[identifier]) do
+            ExecuteCommand(
+                "remove_principal identifier." .. Config.primary_identifier .. ":" .. identifier .. " " .. v)
+        end
+    end
 end)
