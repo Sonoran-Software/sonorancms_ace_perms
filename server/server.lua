@@ -100,7 +100,7 @@ AddEventHandler('onResourceStart', function(resource)
     if resource == GetCurrentResourceName() then
         Citizen.Wait(100)
         cache = json.decode(LoadResourceFile(GetCurrentResourceName(), "cache.json"))
-        if GetResourceState("sonorancms") ~= "started" then
+        if GetResourceState("sonorancms_core") ~= "started" then
             print("ERROR! SONORANCMS CORE NOT RUNNING!")
         else
             APIKey = GetConvar("SONORAN_CMS_API_KEY")
