@@ -119,7 +119,7 @@ AddEventHandler("playerConnecting", function(_, _, deferrals)
             identifier = string.sub(v, string.len(Config.primary_identifier .. ":") + 1)
         end
     end
-    PerformHttpRequest(Config.apiUrl, function(code, result, _)
+    PerformHttpRequest(Config.apiUrl .. '/general/get_account_ranks', function(code, result, _)
         if code == 201 then
             local ppermissiondata = json.decode(result)
             if loaded_list[identifier] ~= nil then
@@ -212,7 +212,7 @@ RegisterCommand("refreshpermissions", function(src, _, _)
     payload["data"] = {{
         ["apiId"] = identifier
     }}
-    PerformHttpRequest(Config.apiUrl, function(code, result, _)
+    PerformHttpRequest(Config.apiUrl .. '/general/get_account_ranks', function(code, result, _)
         if code == 201 then
             local ppermissiondata = json.decode(result)
             if loaded_list[identifier] ~= nil then
