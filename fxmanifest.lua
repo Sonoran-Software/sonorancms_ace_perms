@@ -4,7 +4,7 @@ games {'gta5'}
 author 'Sonoran Software Systems'
 real_name 'Sonoran CMS Permissions'
 description 'Sonoran CMS to Ace permissions translation layer'
-version '1.0.1'
+version '1.1.0'
 git_repo 'https://github.com/Sonoran-Software/cms_ace_perms'
 
 lua54 'yes'
