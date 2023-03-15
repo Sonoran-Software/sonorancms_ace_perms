@@ -1,6 +1,6 @@
 local cache = {}
 local loaded_list = {}
-local apiKey, communityId, apiUrl, serverId, apiIdType
+local apiKey, communityId, apiUrl, serverId, apiIdType, debugMode
 
 RegisterNetEvent('SonoranCMS::Plugins::GiveInfo', function(pluginName, payload)
 	if pluginName == GetCurrentResourceName() then
@@ -9,6 +9,7 @@ RegisterNetEvent('SonoranCMS::Plugins::GiveInfo', function(pluginName, payload)
 		apiUrl = payload.apiUrl
 		serverId = payload.serverId
 		apiIdType = payload.apiIdType
+		debugMode = payload.debugMode
 	end
 end)
 
