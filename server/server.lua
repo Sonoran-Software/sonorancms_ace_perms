@@ -22,9 +22,8 @@ function infoLog(message)
 end
 
 function wait(seconds)
-	os.execute("sleep " .. tonumber(seconds))
+	os.execute('sleep ' .. tonumber(seconds))
 end
-
 
 function initialize()
 	if GetResourceState('sonorancms') ~= 'started' then
@@ -277,10 +276,7 @@ end
 
 initialize();
 
-AddEventHandler('onServerResourceStart',  function(resourceName)
-	if resourceName == 'sonorancms' then
-		infoLog('sonorancms core has been (re)started! reinitializing addon!')
-		initialize()
-	end
+AddEventHandler('SonoranCMS::Started', function(resourceName)
+	infoLog('sonorancms core has been (re)started! reinitializing addon!')
+	initialize()
 end)
-
